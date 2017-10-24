@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+// const SALT_WORK_FACTOR = 10;
 
 const Schema = mongoose.Schema;
 
@@ -11,7 +12,7 @@ const UserSchema = new Schema({
         unique: true,
         minlength: 1
     },
-    hash_password: {
+    password: {
         type: String,
         required: true,
         minlength: 4
@@ -24,8 +25,8 @@ const UserSchema = new Schema({
 
 });
 
-UserSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.hash_password);
+UserSchema.methods.comparePassword = function (candidatePassword) {
+    return bcrypt.compareSync(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('User', UserSchema);

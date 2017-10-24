@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const config = require('./config/config');
 const User = require('./models/user');
@@ -43,12 +43,12 @@ app.post('/api/register', function (req, res) {
 
     User.create({
         email: req.body.email,
-        hash_password: hash_password,
+        password: hash_password,
         name: req.body.name
     }, function (err, user) {
 
         if (err) {
-            return res.status(400).send("There was a problem registering the user.")
+            return res.status(400).send("There was a problem registering the user: " + err)
         }
 
         let token = jwt.sign({
@@ -81,7 +81,7 @@ app.post('/api/login', (req, res) => {
                 message: 'Authentication failed. User not found.'
             });
         } else if (user) {
-            if (User.comparePassword(req.body.password)) {  /////  <<<<==== зупинився на  зрывнянні і шифруванні паролів
+            if (!user.comparePassword(req.body.password)) {
                 res.status(401).json({
                     success: false,
                     message: 'Authentication failed. Wrong Password.'
@@ -98,23 +98,5 @@ app.post('/api/login', (req, res) => {
         }
     });
 });
-
-
-// app.post('/api/login', (req, res) => {
-
-//     // insert code here to actually authenticate, or fake it
-//     const user = {
-//         id: 3
-//     };
-
-//     // then return a token, secret key should be an env variable
-//     const token = jwt.sign({
-//         user: user.id
-//     }, 'secret_key_goes_here');
-//     res.json({
-//         message: 'Authenticated! Use this token in the "Authorization" header',
-//         token: token
-//     });
-// });
 
 module.exports = app;
