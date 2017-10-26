@@ -39,16 +39,19 @@ app.get('/api', function api(req, res) {
 
 app.post('/api/register', function (req, res) {
 
-    const hash_password = bcrypt.hashSync(req.body.password, 8);
+    //const password = req.body.password || undefined;
+    if (!req.body.password) {
+        return res.status(400).send("Password is required! ");
+    }
 
     User.create({
         email: req.body.email,
-        password: hash_password,
+        password: bcrypt.hashSync(req.body.password, 8),
         name: req.body.name
     }, function (err, user) {
 
         if (err) {
-            return res.status(400).send("There was a problem registering the user: " + err)
+            return res.status(400).send("There was a problem registering the user: ");
         }
 
         let token = jwt.sign({
@@ -71,7 +74,7 @@ app.post('/api/register', function (req, res) {
 app.post('/api/login', (req, res) => {
     User.findOne({
         email: req.body.email
-    }, function(err, user) {
+    }, function (err, user) {
         if (err) {
             throw err;
         }
